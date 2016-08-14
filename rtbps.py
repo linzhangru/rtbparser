@@ -15,38 +15,42 @@ def addr_info (addr, fd):
     
 global log
 log = []
+
+def main():
+
+    for i in range(0,8):
+        tmp = "cpu" + str(i) + ".txt"
+        fd = open(tmp, 'w')
+        log.append(fd)
     
-for i in range(0,8):
-    tmp = "cpu" + str(i) + ".txt"
-    fd = open(tmp, 'w')
-    log.append(fd)
-    
-#print logfilename
+    #print logfilename
     
 
-logi = open("log1")
-idx = 0
+    logi = open("log1")
+    idx = 0
 
-lines_read = logi.readlines()
-for line in  lines_read:
-    fd = idx%8
-    idx = idx + 1;
-    print "-----------------------------------------------------\n",
-    log[fd].write("-----------------------------------------------------\n")
-    print line,
-    log[fd].write(line)
-    str = re.findall(r"_ADDR_d: 0x(.*) <== FUNC: 0x(.*)", line)
-    if len(str) :
-        addr_info(str[0][1], log[fd])
-        continue
-    str = re.findall(r"_ACTN_f: 0x(.*) ===   LR: 0x(.*)", line)
-    if len(str) :
-        addr_info(str[0][0], log[fd])
-        addr_info(str[0][1], log[fd])
-        continue
+    lines_read = logi.readlines()
+    for line in  lines_read:
+        fd = idx%8
+        idx = idx + 1;
+        print "-----------------------------------------------------\n",
+        log[fd].write("-----------------------------------------------------\n")
+        print line,
+        log[fd].write(line)
+        vals = re.findall(r"_ADDR_d: 0x(.*) <== FUNC: 0x(.*)", line)
+        if len(vals) :
+            addr_info(vals[0][1], log[fd])
+            continue
+        vals = re.findall(r"_ACTN_f: 0x(.*) ===   LR: 0x(.*)", line)
+        if len(vals) :
+            addr_info(vals[0][0], log[fd])
+            addr_info(vals[0][1], log[fd])
+            continue
     
-logi.close()
+    logi.close()
 
-for i in range(0,8):
-    log[i].close()
+    for i in range(0,8):
+        log[i].close()
 
+if __name__== "__main__":
+    main()
