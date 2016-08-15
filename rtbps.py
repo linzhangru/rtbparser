@@ -43,9 +43,10 @@ def addr_info (addr, fd, gdbscript, verbose, debug):
         cache1[addr] = " " + output1 
 
 def Usage():
-    print "./rtbps.py"
-    print "./rtbps.py -t"
-    print "./rtbps.py -t -v -s ./test.sh"
+    print "rtbps"
+    print "rtbps -t"
+    print "rtbps -t -v"
+    print "rtbps -t -v -d"
         
         
 global log
@@ -61,7 +62,7 @@ SHIT
 
 
 def main():
-    ret, output = commands.getstatusoutput("./rtbp")
+    ret, output = commands.getstatusoutput("rtbp")
     lines_read = output.split("\n") 
     #print len(lines_read)
     global test_sh
