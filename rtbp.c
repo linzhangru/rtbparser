@@ -69,7 +69,7 @@ int main()
     buf = (char*)(&rtb_entry);
     //printf("sizeof(unsigned int) : %ld\n", sizeof(unsigned int));
     //printf("sizeof(unsigned long): %ld\n", sizeof(unsigned long));
-    printf("%s\n", log_type[LOGK_READL]);
+    //printf("%s\n", log_type[LOGK_READL]);
     
 #if 1
     fd = open("SYS_RTB_RAW", O_RDONLY);
@@ -118,7 +118,7 @@ int main()
 		printf("_TSTP_ms:%-10ld, TASKPID:%ld\n", rtb_entry.caller, rtb_entry.data);
 		break;
 	    case LOGK_SOFTIRQ:
-		printf("_ACTN_f: 0x%08lx ===   LR: 0x%08lx\n", rtb_entry.data, rtb_entry.caller);
+		printf("_ACTN_f: 0x%08lx === _LR_: 0x%08lx\n", rtb_entry.data, rtb_entry.caller);
 		break;
 	    default:
 		printf("unsupported type\n");
