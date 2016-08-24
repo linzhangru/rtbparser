@@ -35,7 +35,7 @@ def addr_info (addr, fd, gdbscript, verbose, debug):
             print "(hit ): " + "0x" + addr + cache1[addr]
         fd.write(cache1[addr]+"\n")
     else:
-        cmd = "aarch64-linux-android-addr2line -e vmlinux " + addr + " | sed 's/.*kernel-3.18\///g'"
+        cmd = "aarch64-linux-android-addr2line -apfs -e vmlinux " + addr + " | sed 's/.*kernel-3.18\///g'"
         ret1, output1 =  commands.getstatusoutput(cmd)
         if debug:
             print "(miss): " + "0x" + addr +  " " + output1
