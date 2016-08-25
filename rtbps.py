@@ -28,7 +28,7 @@ def addr_info (addr, fd, gdbscript, verbose, debug):
     else:
         if debug:
             print "0x" + addr + " "
-        fd.write("0x" + addr + " ")
+        #fd.write("0x" + addr + " ")
         
     if cache1.has_key(addr):
         if debug:
@@ -39,8 +39,9 @@ def addr_info (addr, fd, gdbscript, verbose, debug):
         ret1, output1 =  commands.getstatusoutput(cmd)
         if debug:
             print "(miss): " + "0x" + addr +  " " + output1
-        fd.write(" " + output1 + "\n")
-        cache1[addr] = " " + output1 
+        #fd.write(" " + output1 + "\n")
+        fd.write(output1 + "\n")
+        cache1[addr] = output1 
 
 def Usage():
     print "rtbps"
