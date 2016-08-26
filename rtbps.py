@@ -6,43 +6,21 @@ import sys
 import getopt
 
 test_sh = []
-cache0 = {}
-cache1 = {}
+cache = {}
 
 def addr_info (addr, fd, gdbscript, verbose, debug):
-    
-    if verbose:
-        if cache0.has_key(addr):
-            if debug:
-                print "(hit ): " + cache0[addr]
-            fd.write(cache0[addr])
-        else:
-            #global test_sh
-            cmd = "./" + gdbscript + " " + "0x" + addr + " 2>/dev/null | grep \"(gdb).*<\"" + " | sed 's/:.*//g'" + " | sed 's/(gdb) //g'"
-            #print cmd
-            ret0, output0 = commands.getstatusoutput(cmd)
-            if debug:
-                print "(miss): " + output0
-            fd.write(output0)
-            cache0[addr] = output0
-    else:
-        if debug:
-            print "0x" + addr + " "
-        #fd.write("0x" + addr + " ")
-        
-    if cache1.has_key(addr):
-        if debug:
-            print "(hit ): " + "0x" + addr + cache1[addr]
-        fd.write(cache1[addr]+"\n")
+    #print "addr_info", 
+    if cache.has_key(addr):
+        #print  cache[addr]
+        return cache[addr]
     else:
         cmd = "aarch64-linux-android-addr2line -apfs -e vmlinux " + addr + " | sed 's/.*kernel-3.18\///g'"
         ret1, output1 =  commands.getstatusoutput(cmd)
-        if debug:
-            print "(miss): " + "0x" + addr +  " " + output1
-        #fd.write(" " + output1 + "\n")
-        fd.write(output1 + "\n")
-        cache1[addr] = output1 
-
+        vals = re.findall(r"0x.*: (.*) at (.*:.*)", output1)
+        #print  vals
+        cache[addr] = vals 
+        return cache[addr]
+        
 def Usage():
     print "rtbps"
     print "rtbps -t"
@@ -125,20 +103,39 @@ def main():
         if debug:
             print "CPU" + str(fd) + ":",  
             print "-----------------------------------------------------\n",
-        log[fd].write("-----------------------------------------------------\n")
+        #log[fd].write("-----------------------------------------------------\n")
         if debug:
             print line
-        log[fd].write(line+"\n")
-        vals = re.findall(r"_ADDR_d: 0x(.*) <== FUNC: 0x(.*)", line)
+        #log[fd].write(line+" ")
+        vals = re.findall(r"\[(.*)\] LOGK_.*_ADDR_d: 0x(.*) <== FUNC: 0x(.*)", line)
+        #print vals
         if len(vals) :
-            addr_info(vals[0][1], log[fd], gdbscript, verbose, debug)
+            #log[fd].write(line+" ")
+            log[fd].write("[" + vals[0][0] + "] " + "0x" + vals[0][1] + " <== 0x" + vals[0][2] + " ")
+            info = addr_info(vals[0][2], log[fd], gdbscript, verbose, debug)
+            #print "info: ",
+            #print info
+            log[fd].write(info[0][0] + " @ " + info[0][1]);
+            log[fd].write("\n")
             continue
-        vals = re.findall(r"_ACTN_f: 0x(.*) === _LR_: 0x(.*)", line)
+        
+        vals = re.findall(r"\[(.*)\] LOGK_.*_ACTN_f: 0x(.*) === _LR_: 0x(.*)", line)
+        print vals
         if len(vals) :
-            addr_info(vals[0][0], log[fd], gdbscript, verbose, debug)
-            addr_info(vals[0][1], log[fd], gdbscript, verbose, debug)
+            #log[fd].write(line+" ")
+            log[fd].write("[" + vals[0][0] + "] " + "0x" + vals[0][1] + " === 0x" + vals[0][2] + " ")
+            info_1 = addr_info(vals[0][1], log[fd], gdbscript, verbose, debug)
+            info_2 = addr_info(vals[0][2], log[fd], gdbscript, verbose, debug)
+            #print info_1
+            #print info_2
+            log[fd].write(info_1[0][0] + "/" + info_2[0][0] + " @ " + info_1[0][1] + "/" + info_2[0][1]);
+            log[fd].write("\n")
             continue
-        #print "\n"
+
+        vals = re.findall(r"(\[.*\].*)",line)
+        #log[fd].write(line+" ")
+        log[fd].write(vals[0])
+        log[fd].write("\n")
         
     #logi.close()
 
